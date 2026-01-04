@@ -39,13 +39,13 @@ const App = () => {
       description: 'Misa de Presentación - Brian Hernández Martínez y Yeimi Rocandio Ramos tienen el honor de invitarle',
       location: 'Parroquia Cristo Rey, Santa María Tulpetlac',
       start: '20260207T174500',
-      end: '20260207T194500',
-      alarm: '20260206T174500'
+      end: '20260207T194500'
     };
 
     const icsContent = `BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Presentación Liam//ES
+CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:${Date.now()}@presentacion-liam.com
 DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z
@@ -54,33 +54,33 @@ DTEND:${event.end}
 SUMMARY:${event.title}
 DESCRIPTION:${event.description}
 LOCATION:${event.location}
+STATUS:CONFIRMED
+SEQUENCE:0
 BEGIN:VALARM
-TRIGGER:-PT24H
+TRIGGER:-P1D
 ACTION:DISPLAY
 DESCRIPTION:Recordatorio: Presentación de Liam mañana
 END:VALARM
 END:VEVENT
 END:VCALENDAR`;
 
-    // Detectar si es iOS
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    // Crear el archivo ICS y forzar descarga
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'presentacion-liam.ics');
+    link.style.display = 'none';
+    document.body.appendChild(link);
     
-    if (isIOS) {
-      // Para iOS: usar data URI que abre directamente
-      const dataUri = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(icsContent);
-      window.open(dataUri, '_blank');
-    } else {
-      // Para Android y otros: descarga normal
-      const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'presentacion-liam.ics';
-      document.body.appendChild(link);
-      link.click();
+    // Forzar clic
+    link.click();
+    
+    // Limpiar
+    setTimeout(() => {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-    }
+    }, 100);
   };
 
   return (
